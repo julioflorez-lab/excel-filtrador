@@ -19,7 +19,7 @@ if archivo is not None:
 
     # Crear nuevo DataFrame
     df_nuevo = pd.DataFrame()
-    df_nuevo['Codigo entidad'] = df_filtrado['CodigoEntidad']
+    df_nuevo['CodigoEntidad'] = df_filtrado['Codigo entidad']
     df_nuevo['Cedula'] = df_filtrado['Identificación']
     df_nuevo['Concepto'] = df_filtrado['Concepto']
     df_nuevo['N° Factura'] = df_filtrado['No factura']
@@ -42,4 +42,5 @@ if archivo is not None:
         data=output,
         file_name="archivo_nuevo.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
     )
