@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from io import BytesIO
+from openpyxl import load_workbook
 
 st.title("Filtro ArchivoPlano Tiempo Libre")
 
@@ -15,6 +16,19 @@ if archivo is not None:
     for col in ["Fecha de pago", "Fecha de factura", "Fecha"]:
         if col in df.columns:
             df[col] = pd.to_datetime(df[col], errors="coerce")
+
+    archivo.seek(0)  # resetear puntero para openpyxl
+    wb = load_workbook(archivo, data_only=True)
+    ws = wb.active
+
+    colores = []
+    for row in ws.iter_rows(min_row=2, max_row=ws.max_row):  # desde la fila 2 (asumiendo encabezados en fila 1)
+        # aquí tomo el color de la columna "Fecha" (ajusta el índice si necesitas otra columna)
+        celda = row[df.columns.get_loc("Fecha")]  
+        color = celda.fill.start_color.rgb if celda.fill and celda.fill.start_color else None
+        colores.append(color)
+
+    df["Color"] = colores
 
     # Filtro por fecha "Desde" (columna Fecha)
     fecha_desde = None
@@ -34,6 +48,12 @@ if archivo is not None:
         (df['Pago'] == True) &
         (df['ArchivoPlano'] == False)
     ]
+
+    colores_unicos = df_filtrado["Color"].dropna().unique().tolist()
+    if colores_unicos:
+        color_sel = st.selectbox("Filtrar por color de la columna Fecha", ["Todos"] + colores_unicos)
+        if color_sel != "Todos":
+            df_filtrado = df_filtrado[df_filtrado["Color"] == color_sel]
 
     # Aplicar filtro de fecha si el usuario selecciona
     if fecha_desde:
@@ -74,6 +94,7 @@ if archivo is not None:
         file_name="archivo_nuevo.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
 
 
