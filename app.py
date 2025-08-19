@@ -46,7 +46,7 @@ if archivo is not None:
     df_nuevo['CodigoEntidad'] = df_filtrado['Codigo entidad']
     df_nuevo['Cedula'] = df_filtrado['Identificación']
     df_nuevo['Concepto'] = df_filtrado['Concepto']
-    df_nuevo['N° Factura'] = df_filtrado['No factura'].fillna("").astype(str)
+    df_nuevo['N° Factura'] = df_filtrado['FacturaSimple'].fillna("").astype(str)
     df_nuevo['Fecha'] = df_filtrado['Fecha'].dt.strftime("%d/%m/%Y")  # solo Fecha
     df_nuevo['Valor total'] = df_filtrado['Valor total']
     df_nuevo['Valor 0'] = 0
@@ -73,4 +73,5 @@ if archivo is not None:
         file_name="archivo_nuevo.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
