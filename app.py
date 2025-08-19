@@ -11,33 +11,62 @@ if archivo is not None:
     # Leer Excel
     df = pd.read_excel(archivo)
 
-    for col in ["Fecha de pago", "Fecha de factura"]:
+    # Convertir fechas (incluyendo la columna Fecha original)
+    for col in ["Fecha de pago", "Fecha de factura", "Fecha"]:
         if col in df.columns:
-            df[col] = pd.to_datetime(df[col], errors="coerce").dt.strftime("%d/%m/%Y")
+            df[col] = pd.to_datetime(df[col], errors="coerce")
 
-    # Filtrar
+    # Selección de rango de fechas basado en columna "Fecha"
+    if "Fecha" in df.columns:
+        fecha_min = df["Fecha"].min()
+        fecha_max = df["Fecha"].max()
+
+        rango_fechas = st.date_input(
+            "Selecciona el rango de fechas (columna Fecha)",
+            value=(fecha_min, fecha_max),
+            min_value=fecha_min,
+            max_value=fecha_max
+        )
+    else:
+        rango_fechas = None
+
+    # Filtrar por Pago y ArchivoPlano
     df_filtrado = df[
         (df['Pago'] == True) &
         (df['ArchivoPlano'] == False)
     ]
+
+    # Filtrar por rango de fechas en columna "Fecha"
+    if rango_fechas and len(rango_fechas) == 2:
+        inicio, fin = rango_fechas
+        df_filtrado = df_filtrado[
+            (df_filtrado["Fecha"] >= pd.to_datetime(inicio)) &
+            (df_filtrado["Fecha"] <= pd.to_datetime(fin))
+        ]
 
     # Crear nuevo DataFrame
     df_nuevo = pd.DataFrame()
     df_nuevo['CodigoEntidad'] = df_filtrado['Codigo entidad']
     df_nuevo['Cedula'] = df_filtrado['Identificación']
     df_nuevo['Concepto'] = df_filtrado['Concepto']
-    df_nuevo['N° Factura'] = df_filtrado['No factura'].astype(str)
-    df_nuevo['Fecha de pago'] = df_filtrado['Fecha de pago']
-    df_nuevo['Fecha de factura'] = df_filtrado['Fecha de factura']
+    df_nuevo['N° Factura'] = df_filtrado['No factura'].fillna("").astype(str)
+    df_nuevo['Fecha'] = df_filtrado['Fecha'].dt.strftime("%d/%m/%Y")  # columna Fecha original
+    if "Fecha de pago" in df_filtrado.columns:
+        df_nuevo['Fecha de pago'] = df_filtrado['Fecha de pago'].dt.strftime("%d/%m/%Y")
+    if "Fecha de factura" in df_filtrado.columns:
+        df_nuevo['Fecha de factura'] = df_filtrado['Fecha de factura'].dt.strftime("%d/%m/%Y")
     df_nuevo['Valor total'] = df_filtrado['Valor total']
     df_nuevo['Valor 0'] = 0
     df_nuevo['Centro de Costo'] = 17395
     df_nuevo['Abreviatura'] = "US"
     df_nuevo['Observacion'] = df_filtrado['Observacion']
 
+    # Mostrar una vista previa
+    st.dataframe(df_nuevo.head(20))
+
     # Descargar archivo
     output = BytesIO()
-    df_nuevo.to_excel(output, index=False)
+    df_nuevo.to_excel(output, index=False, engine="openpyxl")
     output.seek(0)
 
     st.success("Archivo procesado con éxito.")
@@ -46,7 +75,6 @@ if archivo is not None:
         data=output,
         file_name="archivo_nuevo.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-
     )
 
 
