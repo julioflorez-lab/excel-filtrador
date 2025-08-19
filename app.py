@@ -11,6 +11,10 @@ if archivo is not None:
     # Leer Excel
     df = pd.read_excel(archivo)
 
+    for col in ["Fecha de pago", "Fecha de factura"]:
+    if col in df.columns:
+        df[col] = pd.to_datetime(df[col], errors="coerce").dt.strftime("%d/%m/%Y")
+
     # Filtrar
     df_filtrado = df[
         (df['Pago'] == True) &
@@ -22,7 +26,7 @@ if archivo is not None:
     df_nuevo['CodigoEntidad'] = df_filtrado['Codigo entidad']
     df_nuevo['Cedula'] = df_filtrado['Identificación']
     df_nuevo['Concepto'] = df_filtrado['Concepto']
-    df_nuevo['N° Factura'] = df_filtrado['No factura']
+    df_nuevo['N° Factura'] = df_filtrado['No factura'].astype(str)
     df_nuevo['Fecha de pago'] = df_filtrado['Fecha de pago']
     df_nuevo['Fecha de factura'] = df_filtrado['Fecha de factura']
     df_nuevo['Valor total'] = df_filtrado['Valor total']
@@ -44,3 +48,4 @@ if archivo is not None:
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
     )
+
