@@ -57,6 +57,10 @@ if archivo is not None:
     # Mostrar vista previa completa
     st.dataframe(df_nuevo)
 
+    # Mostrar conteo de registros en la interfaz
+    total_registros = len(df_nuevo)
+    st.subheader(f"📊 Total de registros: {total_registros}")
+
     # Descargar archivo
     output = BytesIO()
     df_nuevo.to_excel(output, index=False, engine="openpyxl")
@@ -69,3 +73,4 @@ if archivo is not None:
         file_name="archivo_nuevo.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
