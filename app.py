@@ -12,8 +12,8 @@ if archivo is not None:
     df = pd.read_excel(archivo)
 
     for col in ["Fecha de pago", "Fecha de factura"]:
-    if col in df.columns:
-        df[col] = pd.to_datetime(df[col], errors="coerce").dt.strftime("%d/%m/%Y")
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], errors="coerce").dt.strftime("%d/%m/%Y")
 
     # Filtrar
     df_filtrado = df[
@@ -48,4 +48,5 @@ if archivo is not None:
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
     )
+
 
